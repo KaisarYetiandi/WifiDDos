@@ -9,5 +9,5 @@ WifiDDos adalah tools yang dimana melakukan serangan deauth attack terhadap wifi
 6. selesai
 
 # Disclaimer
-Singkat saja dari aing, Tools ini hanya untuk pembelajaran saja, Aing gak akan betanggung jawab bila ada kerusakan terhadap apa yg lu lakuin,
+Singkat saja dari aing, Tools ini hanya untuk pembelajaran saja, Aing gak akan bertanggung jawab bila ada kerusakan terhadap apa yg lu lakuin,
 Thanks:)😊
