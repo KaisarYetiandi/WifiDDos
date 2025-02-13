@@ -1,5 +1,5 @@
 # WifiDDos
-WifiDDos adalah tools yang dimana melakukan serangan deauth attack terhadapa wifi target dengan memancarkan sinyal untuk mengacaukan frekuensi wifi, dengan begitu perangkat-perangkat yang terhubung ke jaringan wifi tersebut akan putus, bisa dibilang lu memutuskan tali orang-orang yang masih lagi sayang-sayangnya👀
+WifiDDos adalah tools yang dimana melakukan serangan deauth attack terhadap wifi target dengan memancarkan sinyal untuk mengacaukan frekuensi wifi, dengan begitu perangkat-perangkat yang terhubung ke jaringan wifi tersebut akan putus, bisa dibilang lu memutuskan tali orang-orang yang masih lagi sayang-sayangnya👀
 
 # Cara penginstalan
 1. copy = git clone https://github.com/KaisarYetiandi/WifiDDos
