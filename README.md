@@ -5,7 +5,7 @@ WifiDDos adalah tools yang dimana melakukan serangan deauth attack terhadap wifi
 1. copy = git clone https://github.com/KaisarYetiandi/WifiDDos
 3. setelah terinstal ketik perintah ls maka akan muncul folder WifiDDosnya
 4. ketik perintah = WifiDDos
-5. dan setelah itu lu jalankan dengan perintah = sudo WifiDDos.py
+5. dan setelah itu lu jalankan dengan perintah = sudo python3 WifiDDos.py
 6. selesai
 
 # Disclaimer
