@@ -11,8 +11,12 @@ WifiDDos adalah tools yang dimana melakukan serangan deauth attack terhadap wifi
 # Update Tools
 ![alt text](https://github.com/KaisarYetiandi/WifiDDos/blob/main/UpdateWifiDDos.png?raw=true) 
 Fitur-fitur terbaru yang op dan bisa lu mainkan
-# Suppor Aing Dong
-Aing dengan mengirimkan saldo solana xy7bnSC5CZCfF5etokhmuo2vHFNGzoM73xjr5zYbHVU
+
+# Support Aing Dong🥺
+Addres solana aing 👇
+xy7bnSC5CZCfF5etokhmuo2vHFNGzoM73xjr5zYbHVU 
+Dengan dukungan kalian Aing bakal buat tools-tools yg terbaik untuk kalian semua🧑🏻‍💻
+Thanks sudah support🥰
 
 # Disclaimer
 Singkat saja dari aing, Tools ini hanya untuk pembelajaran saja, Aing gak akan bertanggung jawab bila ada kerusakan terhadap apa yg lu lakuin,
