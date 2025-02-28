@@ -19,7 +19,7 @@ xy7bnSC5CZCfF5etokhmuo2vHFNGzoM73xjr5zYbHVU
 
 Dengan dukungan kalian Aing bakal semangat buat tools-tools yg terbaik untuk kalian semua🧑🏻‍💻
 
-Thanks sudah support🥰
+Thanks yang sudah support🥰
 
 # Disclaimer
 Singkat saja dari aing, Tools ini hanya untuk pembelajaran saja, Aing gak akan bertanggung jawab bila ada kerusakan terhadap apa yg lu lakuin,
