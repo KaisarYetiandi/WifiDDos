@@ -13,8 +13,9 @@ WifiDDos adalah tools yang dimana melakukan serangan deauth attack terhadap wifi
 Fitur-fitur terbaru yang op dan bisa lu mainkan
 
 # Support Aing Dong🥺
-Addres solana aing 👇
+Addres solana aing 
 xy7bnSC5CZCfF5etokhmuo2vHFNGzoM73xjr5zYbHVU 
+
 Dengan dukungan kalian Aing bakal buat tools-tools yg terbaik untuk kalian semua🧑🏻‍💻
 Thanks sudah support🥰
 
