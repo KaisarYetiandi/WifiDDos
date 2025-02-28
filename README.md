@@ -16,7 +16,8 @@ Fitur-fitur terbaru yang op dan bisa lu mainkan
 Addres solana aing 
 xy7bnSC5CZCfF5etokhmuo2vHFNGzoM73xjr5zYbHVU 
 
-Dengan dukungan kalian Aing bakal buat tools-tools yg terbaik untuk kalian semua🧑🏻‍💻
+Dengan dukungan kalian Aing bakal semangat buat tools-tools yg terbaik untuk kalian semua🧑🏻‍💻
+
 Thanks sudah support🥰
 
 # Disclaimer
